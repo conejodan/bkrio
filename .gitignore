@@ -1,1 +1,5 @@
 .env
+documentos/*.pdf
+documentos/*.docx
+documentos/*.xlsx
+documentos/*.pptx

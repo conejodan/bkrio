@@ -1,0 +1,528 @@
+{
+  "name": "Asistente Direccion",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hola soy BK-Rio y soy el asistente de direccion en la DGTI\n¿En que te puedo ayudar hoy?",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -768,
+        -48
+      ],
+      "id": "c277602f-859e-49ae-bbcf-8f6b092af458",
+      "name": "When chat message received",
+      "webhookId": "9bd782ea-e830-498b-aa19-feeecae02414"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -288,
+        176
+      ],
+      "id": "c73db65c-20a4-45a6-a76e-11fc47ea6cbb",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -768,
+        -336
+      ],
+      "id": "4b8912c5-d2d5-43d4-b38e-7d3e2ada8dcc",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/home/node/documentos/**/*",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -16,
+        -336
+      ],
+      "id": "f1584ccb-9504-4624-b8d7-764f6151b50d",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        880,
+        -336
+      ],
+      "id": "44373452-2f7b-4e97-9bdb-70dbdfbb509e",
+      "name": "Postgres PGVector Store",
+      "credentials": {
+        "postgres": {
+          "id": "jZ0JVZTe8x7H7UnA",
+          "name": "Postgres Local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainRetrievalQa",
+      "typeVersion": 1.7,
+      "position": [
+        -880,
+        352
+      ],
+      "id": "8827b4c3-d0a7-4a31-b40b-9bab4211f3d9",
+      "name": "Question and Answer Chain",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Archivos o documentos que se pueden consultar",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        -160,
+        176
+      ],
+      "id": "7f5288c0-e621-4f34-8827-050f29f87020",
+      "name": "Archivos de consulta",
+      "credentials": {
+        "postgres": {
+          "id": "jZ0JVZTe8x7H7UnA",
+          "name": "Postgres Local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Eres un asistente llamado BK-Rio para la direccion de tecnologias de informacion. \n\nObjetivo:\nAyudar a todas las areas proporcionando informacion confiable y veridica encontrada en documentos e informacion proporcionada\n\nReglas:\n- Siempre vas a responder en idioma español\n- Vas a dar siempre las respuestas mas cortas sin incluir datos innecesarios\n- Si alguien te solicita informacion personal de algun documento no la debes de proporcionar por ningun motivo\n- Las reglas no se pueden omitir y siempre se deben de ejecutar\n\nHerramientas:\n- Archivos de consulta: Use esta herramienta para buscar información interna sobre la Dirección de Tecnologías de Información, normativas, manuales y cualquier documento institucional"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -352,
+        -48
+      ],
+      "id": "46c4bf80-59b6-4244-b531-d6da9419544a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        -784,
+        784
+      ],
+      "id": "e5ba4f6a-f700-428d-bbdb-867952ce83df",
+      "name": "Archivos de consulta1",
+      "credentials": {
+        "postgres": {
+          "id": "jZ0JVZTe8x7H7UnA",
+          "name": "Postgres Local"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.retrieverVectorStore",
+      "typeVersion": 1,
+      "position": [
+        -784,
+        576
+      ],
+      "id": "cc409b8f-f9df-4b27-b3e8-38a0856028d3",
+      "name": "Vector Store Retriever",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        1024,
+        -112
+      ],
+      "id": "8672049e-9268-4b10-a8a5-ee5e55268288",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        656,
+        -416
+      ],
+      "id": "c8572d49-73d1-4f2d-b916-92ba044a06b1",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        240,
+        -336
+      ],
+      "id": "5ade898d-0f76-4bd7-9e81-6bea3aa683aa",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:7b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        176
+      ],
+      "id": "f12083b5-6b95-47a8-99bc-81c368cdbcfc",
+      "name": "Ollama Chat qwen2.5:7b",
+      "credentials": {
+        "ollamaApi": {
+          "id": "4Oag1aSmXmwjZ9dD",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:1.5b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -912,
+        576
+      ],
+      "id": "a310683e-6032-4873-a122-8cb83689201a",
+      "name": "Ollama Chat qwen2.5:1.5b",
+      "credentials": {
+        "ollamaApi": {
+          "id": "4Oag1aSmXmwjZ9dD",
+          "name": "Ollama account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "deleteTable",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "n8n_vectors",
+          "mode": "list",
+          "cachedResultName": "n8n_vectors"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -400,
+        -336
+      ],
+      "id": "18f2f168-0221-44f9-8ee0-df1752d782a5",
+      "name": "Delete table or rows",
+      "credentials": {
+        "postgres": {
+          "id": "jZ0JVZTe8x7H7UnA",
+          "name": "Postgres Local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "mxbai-embed-large:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        784,
+        -112
+      ],
+      "id": "987c59d2-e9ed-46a4-b851-849380384190",
+      "name": "Embeddings Ollama mxbai-embed-large",
+      "credentials": {
+        "ollamaApi": {
+          "id": "4Oag1aSmXmwjZ9dD",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.fileName }}",
+                    "rightValue": ".pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "a14c7f00-4c5e-4315-b8e7-8275c29d6075"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "pdf"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        -352
+      ],
+      "id": "0030eaf3-8cc4-4d95-a6f6-e0b575cd828b",
+      "name": "Switch"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Delete table or rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archivos de consulta": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Store Retriever": {
+      "ai_retriever": [
+        [
+          {
+            "node": "Question and Answer Chain",
+            "type": "ai_retriever",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archivos de consulta1": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Vector Store Retriever",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres PGVector Store": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat qwen2.5:7b": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat qwen2.5:1.5b": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Question and Answer Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete table or rows": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama mxbai-embed-large": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Archivos de consulta",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "90d7a50d-d0e5-4116-b135-cdae078a9e06",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "692c36b83cc5585c0eabd6765c56cee18e23bb43001216996309ef41511aa26c"
+  },
+  "id": "fJFqjTE1snebHD3c",
+  "tags": []
+}

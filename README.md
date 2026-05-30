@@ -18,6 +18,7 @@ sudo docker compose exec -it ollama ollama pull qwen3:14b
 
 Version ligera server con 8gb de ram
 <!-- sudo docker compose exec -it ollama ollama pull qwen3:8b -->
+sudo docker compose exec -it ollama ollama pull qwen2.5:7b
 sudo docker compose exec -it ollama ollama pull qwen2.5:1.5b
 sudo docker compose exec -it ollama ollama pull qwen2.5:0.5b
 sudo docker compose exec -it ollama ollama pull smollm2
