@@ -11,7 +11,7 @@
       "typeVersion": 1.4,
       "position": [
         -768,
-        -48
+        -32
       ],
       "id": "c277602f-859e-49ae-bbcf-8f6b092af458",
       "name": "When chat message received",
@@ -62,7 +62,7 @@
       "typeVersion": 1.3,
       "position": [
         880,
-        -336
+        -320
       ],
       "id": "44373452-2f7b-4e97-9bdb-70dbdfbb509e",
       "name": "Postgres PGVector Store",
@@ -75,22 +75,27 @@
     },
     {
       "parameters": {
-        "options": {}
+        "options": {
+          "systemPromptTemplate": "You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question.\nIf you don't know the answer, just say that you don't know, don't try to make up an answer.\n----------------\nContext: {context}",
+          "batching": {
+            "batchSize": 5
+          }
+        }
       },
       "type": "@n8n/n8n-nodes-langchain.chainRetrievalQa",
       "typeVersion": 1.7,
       "position": [
-        -880,
-        352
+        -336,
+        384
       ],
       "id": "8827b4c3-d0a7-4a31-b40b-9bab4211f3d9",
-      "name": "Question and Answer Chain",
-      "disabled": true
+      "name": "Question and Answer Chain"
     },
     {
       "parameters": {
         "mode": "retrieve-as-tool",
-        "toolDescription": "Archivos o documentos que se pueden consultar",
+        "toolDescription": "Utilice SIEMPRE esta herramienta cuando el usuario pregunte\nsobre reglamentos, manuales, documentos, procedimientos,\npolíticas, oficios o información interna de la DGTI.",
+        "topK": 2,
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
@@ -101,17 +106,19 @@
       ],
       "id": "7f5288c0-e621-4f34-8827-050f29f87020",
       "name": "Archivos de consulta",
+      "notesInFlow": true,
       "credentials": {
         "postgres": {
           "id": "jZ0JVZTe8x7H7UnA",
           "name": "Postgres Local"
         }
-      }
+      },
+      "notes": "Buscando en Archivos"
     },
     {
       "parameters": {
         "options": {
-          "systemMessage": "Eres un asistente llamado BK-Rio para la direccion de tecnologias de informacion. \n\nObjetivo:\nAyudar a todas las areas proporcionando informacion confiable y veridica encontrada en documentos e informacion proporcionada\n\nReglas:\n- Siempre vas a responder en idioma español\n- Vas a dar siempre las respuestas mas cortas sin incluir datos innecesarios\n- Si alguien te solicita informacion personal de algun documento no la debes de proporcionar por ningun motivo\n- Las reglas no se pueden omitir y siempre se deben de ejecutar\n\nHerramientas:\n- Archivos de consulta: Use esta herramienta para buscar información interna sobre la Dirección de Tecnologías de Información, normativas, manuales y cualquier documento institucional"
+          "systemMessage": "Eres BK-Rio, asistente de la Dirección General de Tecnologías de Información de la Secretaría de Salud.\n\nObjetivo:\nProporcionar información precisa basada en los documentos institucionales disponibles.\n\nReglas:\n\n1. Utiliza la herramienta de búsqueda únicamente cuando la consulta requiera información documental, normativa, procedimientos, manuales, organigramas, directorios, lineamientos o información institucional.\n\n2. Para saludos, despedidas, agradecimientos, preguntas generales sobre tu función o conversaciones simples, responde directamente sin utilizar herramientas.\n\n3. Si la información no se encuentra en los documentos recuperados, indica que no fue encontrada. No inventes información.\n\n4. Prioriza siempre la información obtenida de los documentos institucionales sobre cualquier conocimiento general."
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -130,43 +137,31 @@
       "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
       "typeVersion": 1.3,
       "position": [
-        -784,
-        784
+        -240,
+        816
       ],
       "id": "e5ba4f6a-f700-428d-bbdb-867952ce83df",
       "name": "Archivos de consulta1",
+      "notesInFlow": true,
       "credentials": {
         "postgres": {
           "id": "jZ0JVZTe8x7H7UnA",
           "name": "Postgres Local"
         }
       },
-      "disabled": true
+      "notes": "Realizando consulta "
     },
     {
       "parameters": {},
       "type": "@n8n/n8n-nodes-langchain.retrieverVectorStore",
       "typeVersion": 1,
       "position": [
-        -784,
-        576
+        -240,
+        608
       ],
       "id": "cc409b8f-f9df-4b27-b3e8-38a0856028d3",
       "name": "Vector Store Retriever",
-      "disabled": true
-    },
-    {
-      "parameters": {
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
-      "typeVersion": 1.1,
-      "position": [
-        1024,
-        -112
-      ],
-      "id": "8672049e-9268-4b10-a8a5-ee5e55268288",
-      "name": "Default Data Loader"
+      "notesInFlow": true
     },
     {
       "parameters": {
@@ -177,7 +172,7 @@
       "typeVersion": 1.1,
       "position": [
         656,
-        -416
+        -320
       ],
       "id": "c8572d49-73d1-4f2d-b916-92ba044a06b1",
       "name": "Extract from File"
@@ -197,34 +192,16 @@
     },
     {
       "parameters": {
-        "model": "qwen2.5:7b",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
-      "typeVersion": 1,
-      "position": [
-        -416,
-        176
-      ],
-      "id": "f12083b5-6b95-47a8-99bc-81c368cdbcfc",
-      "name": "Ollama Chat qwen2.5:7b",
-      "credentials": {
-        "ollamaApi": {
-          "id": "4Oag1aSmXmwjZ9dD",
-          "name": "Ollama account"
+        "model": "qwen2.5:3b",
+        "options": {
+          "topK": 3
         }
-      }
-    },
-    {
-      "parameters": {
-        "model": "qwen2.5:1.5b",
-        "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        -912,
-        576
+        -368,
+        608
       ],
       "id": "a310683e-6032-4873-a122-8cb83689201a",
       "name": "Ollama Chat qwen2.5:1.5b",
@@ -233,8 +210,7 @@
           "id": "4Oag1aSmXmwjZ9dD",
           "name": "Ollama account"
         }
-      },
-      "disabled": true
+      }
     },
     {
       "parameters": {
@@ -321,11 +297,73 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        480,
-        -352
+        448,
+        -320
       ],
       "id": "0030eaf3-8cc4-4d95-a6f6-e0b575cd828b",
       "name": "Switch"
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $('Extract from File').item.json.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        1008,
+        -112
+      ],
+      "id": "5dd3c143-ada6-47d4-bc4c-3f4ed88697df",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:1.5b",
+        "options": {
+          "temperature": 0.1,
+          "topK": 3,
+          "topP": 0.8
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        176
+      ],
+      "id": "f12083b5-6b95-47a8-99bc-81c368cdbcfc",
+      "name": "Ollama Chat qwen2.5:3b",
+      "credentials": {
+        "ollamaApi": {
+          "id": "4Oag1aSmXmwjZ9dD",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "de2e3006-0612-4263-9178-f9acb628a531",
+              "name": "output",
+              "value": "={{ $json.response }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        16,
+        384
+      ],
+      "id": "3730977d-053c-4ddf-92c3-7b5c17925705",
+      "name": "Formato de Respuesta"
     }
   ],
   "pinData": {},
@@ -334,7 +372,7 @@
       "main": [
         [
           {
-            "node": "AI Agent",
+            "node": "Question and Answer Chain",
             "type": "main",
             "index": 0
           }
@@ -376,13 +414,7 @@
     },
     "Archivos de consulta": {
       "ai_tool": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Vector Store Retriever": {
@@ -402,17 +434,6 @@
           {
             "node": "Vector Store Retriever",
             "type": "ai_vectorStore",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Default Data Loader": {
-      "ai_document": [
-        [
-          {
-            "node": "Postgres PGVector Store",
-            "type": "ai_document",
             "index": 0
           }
         ]
@@ -452,17 +473,6 @@
         ]
       ]
     },
-    "Ollama Chat qwen2.5:7b": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Ollama Chat qwen2.5:1.5b": {
       "ai_languageModel": [
         [
@@ -497,6 +507,11 @@
             "node": "Archivos de consulta",
             "type": "ai_embedding",
             "index": 0
+          },
+          {
+            "node": "Archivos de consulta1",
+            "type": "ai_embedding",
+            "index": 0
           }
         ]
       ]
@@ -511,6 +526,39 @@
           }
         ]
       ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat qwen2.5:3b": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Question and Answer Chain": {
+      "main": [
+        [
+          {
+            "node": "Formato de Respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -518,7 +566,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "90d7a50d-d0e5-4116-b135-cdae078a9e06",
+  "versionId": "e7b3cabf-c62b-45d4-a043-1a3f470ea276",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "692c36b83cc5585c0eabd6765c56cee18e23bb43001216996309ef41511aa26c"

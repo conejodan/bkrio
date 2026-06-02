@@ -1,0 +1,423 @@
+{
+  "name": "Asistente Dividido",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -384,
+        592
+      ],
+      "id": "271ded0d-818d-41c2-83b9-1041db75bbf9",
+      "name": "When chat message received",
+      "webhookId": "d854f03a-a4ce-4a57-bf3f-9090b92143db"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=Analiza el mensaje del usuario.\n\nResponde únicamente con:\n\n0 = saludo, despedida, agradecimiento o conversación general.\n\n1 = la consulta contiene suficiente información para buscar en documentos.\n\n2 = el usuario solicita información pero no especifica el tema o el contexto de búsqueda.\n\nEjemplos:\n\nUsuario: Hola\nRespuesta: 0\n\nUsuario: Gracias\nRespuesta: 0\n\nUsuario: ¿Puedes darme información?\nRespuesta: 2\n\nUsuario: Necesito información\nRespuesta: 2\n\nUsuario: Quiero consultar algo\nRespuesta: 2\n\nUsuario: ¿Cuál es el procedimiento para solicitar una cuenta de correo?\nRespuesta: 1\n\nUsuario: Muéstrame el organigrama de la DGTI\nRespuesta: 1\n\nUsuario: Necesito el manual de BK-Rio\nRespuesta: 1\n\nMensaje:\n{{ $json.chatInput }}\n\nResponde únicamente con 0, 1 o 2."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -160,
+        592
+      ],
+      "id": "19efbcfd-b424-4971-be82-65535424bef7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:3b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        816
+      ],
+      "id": "1b9a994e-2a30-4874-8efd-4de49796e0ab",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "4Oag1aSmXmwjZ9dD",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output[0] }}",
+                    "rightValue": "1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "5bca8c55-c62d-4624-9e4d-243a6e31fe49"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "agent"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "4ad108c4-9faf-4653-8954-147f9498b9fc",
+                    "leftValue": "={{ $json.output[0] }}",
+                    "rightValue": "0",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "normal"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b34478ce-d1de-4fa8-a12b-7661cad86040",
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "2",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "falta_contexto"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        192,
+        576
+      ],
+      "id": "0523360a-f5ae-4a3e-be0d-e27bb72ffa02",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        496,
+        896
+      ],
+      "id": "6dacd905-4ede-421d-bf23-83ee6b52a1f9",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('When chat message received').item.json.sessionId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        560,
+        1120
+      ],
+      "id": "91994b0c-9a45-4f9d-8efd-178ac530ec66",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainRetrievalQa",
+      "typeVersion": 1.7,
+      "position": [
+        448,
+        -32
+      ],
+      "id": "8cacee24-a590-49f5-bb00-1e87a78dcf40",
+      "name": "Question and Answer Chain"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.retrieverVectorStore",
+      "typeVersion": 1,
+      "position": [
+        544,
+        192
+      ],
+      "id": "b313fedd-a4af-4f99-84d4-1f108a7259a2",
+      "name": "Vector Store Retriever"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        544,
+        400
+      ],
+      "id": "eaf747d4-f953-413e-97d7-344d34f81dd0",
+      "name": "Postgres PGVector Store",
+      "credentials": {
+        "postgres": {
+          "id": "jZ0JVZTe8x7H7UnA",
+          "name": "Postgres Local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "mxbai-embed-large:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        624,
+        608
+      ],
+      "id": "af0ea2d3-4fc7-4a63-bac3-bfd0f4f9acec",
+      "name": "Embeddings Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "4Oag1aSmXmwjZ9dD",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "de2e3006-0612-4263-9178-f9acb628a531",
+              "name": "output",
+              "value": "={{ $json.response }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        912,
+        288
+      ],
+      "id": "7a92d1ac-5eef-4e0c-a067-bf9ae66e8df3",
+      "name": "Formato de Respuesta"
+    },
+    {
+      "parameters": {
+        "model": "qwen3.5:4b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        416,
+        192
+      ],
+      "id": "4d961b09-abde-44ae-9861-eaef085da0cc",
+      "name": "Ollama Chat Model1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "4Oag1aSmXmwjZ9dD",
+          "name": "Ollama account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Question and Answer Chain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Store Retriever": {
+      "ai_retriever": [
+        [
+          {
+            "node": "Question and Answer Chain",
+            "type": "ai_retriever",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres PGVector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Vector Store Retriever",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Question and Answer Chain": {
+      "main": [
+        [
+          {
+            "node": "Formato de Respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Question and Answer Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "3f9bd227-a9b9-435d-a03d-3ac92046aa91",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "692c36b83cc5585c0eabd6765c56cee18e23bb43001216996309ef41511aa26c"
+  },
+  "id": "Ro0fQbpP3kN5UFXi",
+  "tags": []
+}
